@@ -1,0 +1,280 @@
+---
+title: "Lista 3"
+author: "Ewelina Marcinkowska-s339830"
+date: "2025-05-01"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## **Streszczenie**
+
+Celem niniejszego raportu jest przeprowadzenie analizy wybranych uogólnień regresji Poissona w kontekście modelowania liczbowych danych zliczeniowych, z uwzględnieniem zjawisk takich jak nadmierna dyspersja oraz inflacja zer.<br>
+W ramach pracy wykonane zostaną zarówno symulacje, jak i analiza rzeczywistych danych medycznych.
+
+W pierwszej części przeprowadzona zostanie analiza porównawcza rozkładów statystyk testowych służących do testowania hipotezy o zgodności danych z rozkładem Poissona względem alternatywy w postaci rozkładu ujemnego dwumianowego:
+
+\[
+H_0: \text{dane pochodzą z rozkładu Poissona} \quad \text{vs} \quad H_1: \text{dane pochodzą z rozkładu ujemnego dwumianowego}
+\]
+
+Zostaną wykorzystane dwie miary:
+
+- statystyka chi-kwadrat (tzw. deviance),
+- estymator nadmiernej dyspersji \( \hat{\alpha} = 1/\hat{\theta} \)
+
+Dane do analizy zostaną wygenerowane przy założeniu modelu Poissona, a procedury estymacyjne zostaną przeprowadzone dla obu modeli. <br>
+
+Celem jest ocena zgodności empirycznych rozkładów tych miar z teoretycznymi rozkładami, jakie przyjmują one **asymptotycznie pod hipotezą zerową**:
+
+- **Statystyka chi-kwadrat** pod \(H_0\) ma rozkład asymptotyczny będący mieszaniną rozkładu skoncentrowanego w 0 oraz rozkładu \(\chi^2_1\):
+  \[
+  \chi^2 \overset{D}{\longrightarrow} \frac{1}{2} \delta_0 + \frac{1}{2} \chi^2_1
+  \]
+  gdzie \(\delta_0\) to rozkład jednostkowy skupiony w 0.
+
+- **Estymator odwrotności parametru dyspersji \(\hat{\alpha}\)**, zgodnie z asymptotyczną teorią estymatorów MLE, ma rozkład zbliżony do normalnego z wartością oczekiwaną bliską zeru:
+  \[
+  \hat{\alpha} \approx \mathcal{N}\left(0, \operatorname{Var}(\hat{\alpha})\right)
+  \]
+
+W drugiej części raportu analizie poddane zostaną dane rzeczywiste pochodzące z badania przeprowadzonego przez Deb i Trivedi (1997), obejmujące 4406 osób w wieku 66 lat i więcej, korzystających z ubezpieczenia Medicare.<br>
+Badana będzie zależność pomiędzy liczbą wizyt lekarskich a szeregiem zmiennych objaśniających opisujących stan zdrowia i cechy socjodemograficzne pacjentów.<br>
+
+W ramach analizy danych:
+
+*   przeprowadzona zostanie analiza zależności między zmiennymi przy pomocy wykresów pudełkowych,
+*    dopasowanych zostanie sześć modeli: Poissona, ujemny dwumianowy, ZIP, ZINB, Poissona z barierą (hurdle), NB z barierą.<br>
+
+Ostatecznie porównane zostaną wszystkie modele pod względem jakości dopasowania (log-likelihood, AIC, BIC), liczby parametrów oraz zdolności do odwzorowania liczby zer. Wyniki zostaną zestawione w tabeli i poddane interpretacji.<br>
+
+>## **Symulacje**
+
+Celem niniejszej analizy jest zbadanie zachowania statystyk testowych służących do porównania modeli regresji Poissona i ujemnej dwumianowej w sytuacji, gdy dane rzeczywiście pochodzą z modelu Poissona (czyli gdy hipoteza zerowa \( H_0 \) jest prawdziwa).<br>
+
+W szczególności interesuje nas, czy rozkłady empiryczne dwóch statystyk:
+
+- statystyki chi-kwadrat opartej na różnicy log-wiarogodności,
+- estymatora odwrotności parametru dyspersji \( \hat{\alpha} \),
+
+pokrywają się z ich rozkładami asymptotycznymi przy \( H_0 \).<br>
+
+W ramach eksperymentu:
+
+1. Generowana jest losowa macierz planu $X \in \mathbb{R}^{1000 \times 2}$, której elementy są niezależnymi zmiennymi losowymi $X_{ij} \sim\mathcal{N}(0, \sigma^2)$, $\text{gdzie }  \sigma = \frac{1}{\sqrt{1000}}$.
+
+2. Na podstawie wektora współczynników $\beta = (3, 3)^T$ wyznaczany jest ciąg predyktorów liniowych:
+   \[
+   \eta = X \boldsymbol{\beta}
+   \]
+3. Dla każdego z 10000 powtórzeń generowany jest wektor odpowiedzi $y$, zgodnie z rozkładem Poissona:
+   \[
+   y_i \sim \text{Poisson}(\lambda_i), \quad \lambda_i = \exp(\eta_i)
+   \]
+
+Dla każdej próbki odpowiedzi $y$ dopasowywane są dwa modele:
+
+- klasyczna regresja Poissona przy użyciu funkcji `glm()` w R,
+- regresja ujemna dwumianowa przy użyciu funkcji `glm.nb()`.
+
+Na tej podstawie obliczane są dwie miary:
+
+**1. Statystyka chi-kwadrat (Deviance)**
+
+Statystyka testowa oparta jest na różnicy logarytmów funkcji wiarogodności modeli:
+
+\[
+\chi^2 = -2 \left( \ell_1(\hat{\boldsymbol{\beta}}^{(1)}) - \ell_2(\hat{\boldsymbol{\beta}}^{(2)}) \right)
+\]
+
+gdzie:
+
+- $\ell_1$ to log-wiarogodność modelu Poissona,
+- $\ell_2$ to log-wiarogodność modelu NB,
+- $\hat{\boldsymbol{\beta}}^{(i)}$ to wektory estymatorów maksymalnej wiarogodności.
+
+**2. Estymator nadmiernej dyspersji**
+
+Regresja ujemna dwumianowa szacuje dodatkowy parametr dyspersji $\theta$, którego odwrotność oznaczamy jako $\hat{\alpha}$:
+
+\[
+\hat{\alpha} = \frac{1}{\hat{\theta}}
+\]
+
+>>### **Rozkłady empiryczne**
+
+W celu porównania empirycznych i teoretycznych rozkładów statystyk:
+
+- sporządzono histogramy z estymacji i nałożono teoretyczne gęstości,
+- narysowano wykresy kwantyl-kwantyl (QQ-plot) względem odpowiednich rozkładów:
+  - dla \(\chi^2\): mieszanina \(\tfrac{1}{2} \delta_0 + \tfrac{1}{2} \chi^2_1\),
+  - dla \(\hat{\alpha}\): rozkład normalny \(\mathcal{N}(0, \hat{\sigma}^2)\) , gdzie dla dodatniej części histogramu korzystamy z relacji $\hat{\sigma} \approx \frac{F^{-1}(0.75)}{\Phi^{-1}(0.75)}$.
+
+![](D:/Users/Eweli/OneDrive/Pulpit/Studia/Zaawansowane modele liniowe/Raport3/wyniki/histogramy.png)
+![](D:/Users/Eweli/OneDrive/Pulpit/Studia/Zaawansowane modele liniowe/Raport3/wyniki/qqploty.png)
+
+## **Wnioski**
+
+Na podstawie uzyskanych wyników można sformułować następujące wnioski:
+
+- Rozkład statystyki \( \chi^2 \), dobrze pokrywa się z teoretycznym rozkładem mieszanym.<br> 
+Zgodność tę potwierdzają zarówno histogram z gęstością teoretyczną, jak i wykres QQ — punkty układają się wzdłuż prostej.<br>
+
+- Rozkład estymatora odwrotności parametru dyspersji \( \hat{\alpha} \) również wykazuje zgodność z teoretycznym rozkładem — przypominającym połowę rozkładu normalnego ograniczonego do wartości nieujemnych.<br>
+
+- Wnioskujemy, że obie miary zachowują się zgodnie z przewidywaniami teoretycznymi przy założeniu prawdziwości hipotezy zerowej.<br>
+Oznacza to, że mogą być skutecznie wykorzystywane do testowania istotności nadmiernej dyspersji.<br>
+
+
+>## **Analiza danych**
+
+Celem tej części raportu jest zbadanie zależności między liczbą wizyt lekarskich a wybranymi cechami pacjentów.<br>
+
+Zmienną zależną w analizie jest liczba wizyt w gabinecie lekarskim (zmienna `ofp`), natomiast zmiennymi objaśniającymi są:
+
+- liczba hospitalizacji (`hosp`),
+- subiektywna ocena zdrowia (`health`),
+- liczba chorób przewlekłych (`numchron`),
+- płeć (`gender`),
+- liczba lat edukacji (`school`),
+- posiadanie prywatnego ubezpieczenia (`privins`).
+
+Celem analizy danych jest nie tylko określenie wpływu zmiennych objaśniających na liczbę wizyt, ale także identyfikacja najlepszego modelu statystycznego, który adekwatnie opisuje strukturę danych, uwzględniając ich specyfikę (np. nadmierną liczbę zer czy dyspersję).
+
+
+Analiza zostanie przeprowadzona w kilku etapach:
+
+>>### **Wstępna eksploracja danych** — ocena rozkładu zmiennej zależnej `ofp`.
+
+Zaczniemy od przedstawienia wartości zmiennej na poniższym histogramie.
+
+![](D:/Users/Eweli/OneDrive/Pulpit/Studia/Zaawansowane modele liniowe/Raport3/wyniki/histogram_ofp.png)
+
+Możemy zaobserwować wyraźne skupienie dużej liczby obserwacji wokół zera, co sugeruje możliwość występowania inflacji w zerze, czyli nadreprezentacji wartości zerowych względem tego, co przewidywałby klasyczny rozkład Poissona.<br>
+Dodatkowo, porównując wartość średniej $\bar{ofp} = 5.77$ z wariancją $Var(ofp) = 45.69$, dostrzegamy, że wariancja znacznie przewyższa średnią, co stanowi silną przesłankę do stwierdzenia obecności nadmiernej dyspersji. <br>
+
+W związku z tym, aby lepiej zbadać zależności między "ofp" a zmiennymi objaśniającymi, korzystamy z transformacji $f(ofp) = \log(ofp + 0{,}5)$, która pozwala ograniczyć wpływ zer i poprawia interpretowalność wyników modelowania.<br>
+
+
+>>### **Analiza zależności** 
+
+Następnie zajmiemy się stworzeniem wykresów pudełkowych funkcji $f(\text{ofp}) = \log(\text{ofp} + 0.5)$ względem wartości poszczególnych zmiennych objaśniających.<br>
+
+W przypadku zmiennych liczbowych pogrupujemy je odpowiednio, aby umożliwić sensowne porównania.<br>
+
+![](D:/Users/Eweli/OneDrive/Pulpit/Studia/Zaawansowane modele liniowe/Raport3/wyniki/boxploty1.png)
+![](D:/Users/Eweli/OneDrive/Pulpit/Studia/Zaawansowane modele liniowe/Raport3/wyniki/boxploty2.png)
+![](D:/Users/Eweli/OneDrive/Pulpit/Studia/Zaawansowane modele liniowe/Raport3/wyniki/boxploty3.png)
+W przypadku liczby hospitalizacji obserwujemy rosnący trend – wraz ze wzrostem liczby hospitalizacji, wartości funkcji $f(\text{ofp})$ ulegają przesunięciu w górę.<br>
+Dla osób bez hospitalizacji rozrzut jest największy (od 0,5 do 2), natomiast dla pacjentów z 3+ hospitalizacjami wartości zawierają się w przedziale 1,75–2,75.<br>
+Może to świadczyć o pozytywnym związku między liczbą hospitalizacji a częstotliwością wizyt w gabinecie lekarskim. <br>
+
+Podobną zależność widać dla liczby przewlekłych chorób.<br>
+Wartości $f(\text{ofp})$ systematycznie rosną wraz ze wzrostem liczby schorzeń – od przedziału (–0,5; 1,5) dla osób bez chorób przewlekłych do (1,5; 2,1) dla pacjentów z czterema lub więcej schorzeniami.<br>
+Wskazuje to na rosnące zapotrzebowanie na usługi medyczne wśród osób z większym obciążeniem zdrowotnym.<br>
+
+Subiektywna ocena stanu zdrowia również różnicuje wartość funkcji. Osoby oceniające swój stan jako słaby osiągają wyższe wartości $f(\text{ofp})$ (1,25–2,5), natomiast osoby deklarujące doskonałe zdrowie mają znacznie niższe wartości (0,6–1,6).<br>
+Sugeruje to, że subiektywne odczucie stanu zdrowia może być dobrym predyktorem liczby wizyt.
+
+Dla pozostałych zmiennych – takich jak płeć, poziom wykształcenia i posiadanie dodatkowego ubezpieczenia – rozkłady funkcji $f(\text{ofp})$ są do siebie zbliżone i nie wykazują wyraźnych różnic między kategoriami. Przykładowo, dla kobiet i mężczyzn zakresy wartości są niemal identyczne, podobnie jak dla różnych poziomów edukacji czy statusu ubezpieczenia. Może to wskazywać, że te zmienne nie mają istotnego wpływu na liczbę wizyt ambulatoryjnych.<br>
+
+
+>>### **Modelowanie** 
+
+Dopasowywujemy do danych sześć modeli:
+
+   - klasyczny model Poissona,
+   - model ujemny dwumianowy ,
+   - modele inflacyjne: ZIP i ZINB,
+   - modele z barierą (hurdle): Poisson i NB.
+   
+Na początku dopasowujemy pełne modele, uwzględniające wszystkie zmienne objaśniające.<br>
+Następnie przeprowadzamy ich redukcję, usuwając stopniowo zmienne nieistotne statystycznie, na podstawie p-wartości z funkcji `summary()`.<br>
+
+W trakcie analizy wykryliśmy, że w różnych modelach pewne zmienne okazały się nieistotne statystycznie:
+
+- ZIPR: Usunięto zmienne health oraz intercept.
+
+- ZINBR: Podobnie jak w modelu ZIPR, usunięto health oraz intercept.
+
+- Poisson z barierą : W tym modelu podobnie usunięto zarówno zmienne intercept, jak i health
+
+- NB z barierą: W tym przypadku usunięto tylko zmienną intercept, która nie miała istotnego wpływu.
+
+Do porównania modeli pełnych i zredukowanych stosujemy test log-wiarogodności , obliczany na podstawie wartości `logLik()` obu modeli.<br>
+Sprawdzamy w ten sposób, czy uproszczenie modelu nie pogarsza istotnie jego dopasowania.<br>
+Wyniki tego testu dla każdego modelu przedstawiamy w poniższej tabeli.
+
+```{r,echo=FALSE,eval=TRUE}
+tabela1 <- readRDS("D:/Users/Eweli/OneDrive/Pulpit/Studia/Zaawansowane modele liniowe/Raport3/wyniki/tabela1.rds")
+
+knitr::kable(tabela1,caption="Wyniki testów zredukowanych modeli")
+
+```
+Na poziomie istotności $\alpha = 0{,}05$ we wszystkich przypadkach brak jest podstaw do odrzucenia hipotezy zerowej, co oznacza, że uproszczone (zredukowane) modele dopasowują dane równie dobrze jak modele pełne. W związku z tym w dalszej analizie będziemy opierać się na zredukowanych wersjach modeli.
+
+
+>>### **Porównanie modeli** 
+
+W ostatnim kroku zajmiemy się porównaniem otrzymanych modeli pod względem m.in. liczby parametrów, wartości log-wiarogodności, AIC, BIC oraz oszacujemy liczbę zer generowanych przez poszczególny model.<br>
+
+
+```{r,echo=FALSE,eval=TRUE}
+
+tabela_beta<- readRDS("D:/Users/Eweli/OneDrive/Pulpit/Studia/Zaawansowane modele liniowe/Raport3/wyniki/tabela_beta.rds")
+
+knitr::kable(tabela_beta,caption="Wartości predyktorów $\\beta$ dla zredukowanych modeli")
+
+```
+
+Wszystkie przedstawione współczynniki są statystycznie istotne, a ich wartości są zbliżone między modelami, co świadczy o stabilności wyników.<br>
+Liczba hospitalizacji, stan zdrowia i liczba chorób przewlekłych mają największy wpływ na liczbę wizyt.<br>
+W każdym modelu lepsze samopoczucie zmniejsza przewidywaną liczbę wizyt, a posiadanie prywatnego ubezpieczenia ją zwiększa, choć efekt ten jest nieco słabszy w modelach inflacyjnych i z barierą.<br>
+
+```{r,echo=FALSE,eval=TRUE}
+
+tabela_gamma<- readRDS("D:/Users/Eweli/OneDrive/Pulpit/Studia/Zaawansowane modele liniowe/Raport3/wyniki/tabela_gamma.rds")
+
+knitr::kable(tabela_gamma,caption="Wartości predyktorów $\\gamma$ dla zredukowanych modeli")
+
+```
+
+Liczba chorób przewlekłych (numchron) istotnie zmniejsza prawdopodobieństwo zerowej liczby wizyt w modelach inflacyjnych (ZIPR, ZINBR), natomiast w modelach z barierą działa odwrotnie – zwiększa to prawdopodobieństwo.<br>
+
+Posiadanie prywatnego ubezpieczenia (privinsyes) silnie redukuje szanse na zerową liczbę wizyt w modelach inflacyjnych, podczas gdy w modelach z barierą wpływ ten jest dodatni.<br>
+
+```{r,echo=FALSE,eval=TRUE}
+
+tabela_statystyki<-readRDS("D:/Users/Eweli/OneDrive/Pulpit/Studia/Zaawansowane modele liniowe/Raport3/wyniki/tabela_statystyki.rds")
+
+knitr::kable(tabela_statystyki,caption="Wartości statystyk dla zredukowanych modeli")
+
+```
+
+Po analizie wyników możemy zauważyć kilka istotnych różnic między modelami.<br>
+Na podstawie AIC najlepszym modelem jest ujemny dwumianowy z barierą (NB z barierą), a na podstawie BIC najlepiej wypada ZINBR.<br>
+
+Z kolei, jeśli chodzi o liczbę zer, modele Poisson z barierą i NB z barierą przewidziały dokładnie 683 zer, co jest zgodne z rzeczywistą liczbą zer w zmiennej zależnej.
+
+Pod względem log-wiarogodności najlepszy okazuje się model NB z barierą.<br>
+
+Model Poissona wypada najsłabiej w każdym z tych kryteriów, co sugeruje, że nie radzi sobie z nadmierną dyspersją i inflacją zer, które są obecne w danych.<br>
+
+Modele z barierą oraz inflacyjne, takie jak ZIPR i ZINBR, lepiej dostosowują się do tych trudności.
+
+
+## **Wnioski**
+
+Na podstawie przeprowadzonych analiz liczba wizyt lekarskich zależy głównie od liczby hospitalizacji i chorób przewlekłych.<br>
+Choć na etapie eksploracji dane sugerowały istotność subiektywnej oceny zdrowia (`health`), dalsze modelowanie wykazało, że jej wpływ znika po uwzględnieniu innych czynników.<br>
+Pokazuje to, jak ważne jest przeprowadzanie formalnych testów.<br>
+
+Zastosowanie transformacji $f(\text{ofp}) = \log(\text{ofp} + 0{,}5)$ pozwoliło poradzić sobie z nadmiarem zer i dużą zmiennością.<br>
+
+Model Poissona radził sobie najsłabiej, szczególnie przy obecnej inflacji zer.<br>
+Najlepsze dopasowanie zapewnił model ujemny dwumianowy z barierą — poprawnie odwzorował rozkład danych  oraz osiągał najniższe wartości AIC i drugie najmniejsze BIC.
+
+
+
