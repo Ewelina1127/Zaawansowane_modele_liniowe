@@ -1,6 +1,6 @@
 ---
 title: "Lista 3"
-author: "Ewelina Marcinkowska-s339830"
+author: "Ewelina Marcinkowska"
 date: "2025-05-01"
 output: html_document
 ---
@@ -112,8 +112,8 @@ W celu porównania empirycznych i teoretycznych rozkładów statystyk:
   - dla \(\chi^2\): mieszanina \(\tfrac{1}{2} \delta_0 + \tfrac{1}{2} \chi^2_1\),
   - dla \(\hat{\alpha}\): rozkład normalny \(\mathcal{N}(0, \hat{\sigma}^2)\) , gdzie dla dodatniej części histogramu korzystamy z relacji $\hat{\sigma} \approx \frac{F^{-1}(0.75)}{\Phi^{-1}(0.75)}$.
 
-![](D:/Users/Eweli/OneDrive/Pulpit/Studia/Zaawansowane modele liniowe/Raport3/wyniki/histogramy.png)
-![](D:/Users/Eweli/OneDrive/Pulpit/Studia/Zaawansowane modele liniowe/Raport3/wyniki/qqploty.png)
+![](.../histogramy.png)
+![](.../qqploty.png)
 
 ## **Wnioski**
 
@@ -150,7 +150,7 @@ Analiza zostanie przeprowadzona w kilku etapach:
 
 Zaczniemy od przedstawienia wartości zmiennej na poniższym histogramie.
 
-![](D:/Users/Eweli/OneDrive/Pulpit/Studia/Zaawansowane modele liniowe/Raport3/wyniki/histogram_ofp.png)
+![](.../histogram_ofp.png)
 
 Możemy zaobserwować wyraźne skupienie dużej liczby obserwacji wokół zera, co sugeruje możliwość występowania inflacji w zerze, czyli nadreprezentacji wartości zerowych względem tego, co przewidywałby klasyczny rozkład Poissona.<br>
 Dodatkowo, porównując wartość średniej $\bar{ofp} = 5.77$ z wariancją $Var(ofp) = 45.69$, dostrzegamy, że wariancja znacznie przewyższa średnią, co stanowi silną przesłankę do stwierdzenia obecności nadmiernej dyspersji. <br>
@@ -164,9 +164,9 @@ Następnie zajmiemy się stworzeniem wykresów pudełkowych funkcji $f(\text{ofp
 
 W przypadku zmiennych liczbowych pogrupujemy je odpowiednio, aby umożliwić sensowne porównania.<br>
 
-![](D:/Users/Eweli/OneDrive/Pulpit/Studia/Zaawansowane modele liniowe/Raport3/wyniki/boxploty1.png)
-![](D:/Users/Eweli/OneDrive/Pulpit/Studia/Zaawansowane modele liniowe/Raport3/wyniki/boxploty2.png)
-![](D:/Users/Eweli/OneDrive/Pulpit/Studia/Zaawansowane modele liniowe/Raport3/wyniki/boxploty3.png)
+![](.../boxploty1.png)
+![](.../boxploty2.png)
+![](.../boxploty3.png)
 W przypadku liczby hospitalizacji obserwujemy rosnący trend – wraz ze wzrostem liczby hospitalizacji, wartości funkcji $f(\text{ofp})$ ulegają przesunięciu w górę.<br>
 Dla osób bez hospitalizacji rozrzut jest największy (od 0,5 do 2), natomiast dla pacjentów z 3+ hospitalizacjami wartości zawierają się w przedziale 1,75–2,75.<br>
 Może to świadczyć o pozytywnym związku między liczbą hospitalizacji a częstotliwością wizyt w gabinecie lekarskim. <br>
@@ -208,7 +208,7 @@ Sprawdzamy w ten sposób, czy uproszczenie modelu nie pogarsza istotnie jego dop
 Wyniki tego testu dla każdego modelu przedstawiamy w poniższej tabeli.
 
 ```{r,echo=FALSE,eval=TRUE}
-tabela1 <- readRDS("D:/Users/Eweli/OneDrive/Pulpit/Studia/Zaawansowane modele liniowe/Raport3/wyniki/tabela1.rds")
+tabela1 <- readRDS(".../tabela1.rds")
 
 knitr::kable(tabela1,caption="Wyniki testów zredukowanych modeli")
 
@@ -223,7 +223,7 @@ W ostatnim kroku zajmiemy się porównaniem otrzymanych modeli pod względem m.i
 
 ```{r,echo=FALSE,eval=TRUE}
 
-tabela_beta<- readRDS("D:/Users/Eweli/OneDrive/Pulpit/Studia/Zaawansowane modele liniowe/Raport3/wyniki/tabela_beta.rds")
+tabela_beta<- readRDS(".../tabela_beta.rds")
 
 knitr::kable(tabela_beta,caption="Wartości predyktorów $\\beta$ dla zredukowanych modeli")
 
@@ -235,7 +235,7 @@ W każdym modelu lepsze samopoczucie zmniejsza przewidywaną liczbę wizyt, a po
 
 ```{r,echo=FALSE,eval=TRUE}
 
-tabela_gamma<- readRDS("D:/Users/Eweli/OneDrive/Pulpit/Studia/Zaawansowane modele liniowe/Raport3/wyniki/tabela_gamma.rds")
+tabela_gamma<- readRDS(".../tabela_gamma.rds")
 
 knitr::kable(tabela_gamma,caption="Wartości predyktorów $\\gamma$ dla zredukowanych modeli")
 
@@ -247,7 +247,7 @@ Posiadanie prywatnego ubezpieczenia (privinsyes) silnie redukuje szanse na zerow
 
 ```{r,echo=FALSE,eval=TRUE}
 
-tabela_statystyki<-readRDS("D:/Users/Eweli/OneDrive/Pulpit/Studia/Zaawansowane modele liniowe/Raport3/wyniki/tabela_statystyki.rds")
+tabela_statystyki<-readRDS(".../tabela_statystyki.rds")
 
 knitr::kable(tabela_statystyki,caption="Wartości statystyk dla zredukowanych modeli")
 
