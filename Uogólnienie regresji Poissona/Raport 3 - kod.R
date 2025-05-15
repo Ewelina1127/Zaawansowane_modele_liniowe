@@ -192,7 +192,7 @@ boxplot_numchron = ggplot(dane2, aes(x = numchron2, y = f_ofp, fill = numchron2)
   theme_custom + guides(fill = "none") +
   fill_scale
 
-# płeć
+# gender
 
 dane2$gender = factor(dane2$gender, levels = c("male", "female"), labels = c("Mężczyzna", "Kobieta"))
 
@@ -248,7 +248,7 @@ boxplot_school + boxplot_privins
 
 # ZADANIE 4 --------------------------------------------------------------------
 
-dane1 = read.csv2("D:/Users/Eweli/OneDrive/Pulpit/Studia/Zaawansowane modele liniowe/Raport3/DebTrivedi.csv", sep = ',', header = TRUE) # pobiernie danych
+dane1 = read.csv2(".../DebTrivedi.csv", sep = ',', header = TRUE) # pobiernie danych
 
 dane3 = subset(dane1, select = c(ofp, hosp, health, numchron, gender, school, privins))
 
@@ -292,10 +292,10 @@ summary(model_zipr) # usuwamy health i intercpet
 model_zipr_zredukowany = zeroinfl(ofp ~. |hosp + numchron + gender + school + privins-1, data = dane3)
 
 AIC(model_zipr) #  32300.06
-AIC(model_zipr_zredukowany) # 32298.49 - spada czyli lepiej
+AIC(model_zipr_zredukowany) # 32298.49 
 
 BIC(model_zipr) #  32402.31
-BIC(model_zipr_zredukowany) # 32387.96 - spada czyli git
+BIC(model_zipr_zredukowany) # 32387.96 
 
 summary(model_zinbr) # usuwamy health i intercept
 
@@ -320,10 +320,10 @@ summary(model_poiss_hurdle_zredukowany_2)
 
 
 AIC(model_poiss_hurdle) # 32300.9
-AIC(model_poiss_hurdle_zredukowany_2) # 32300.88 - lepiej
+AIC(model_poiss_hurdle_zredukowany_2) # 32300.88 
 
 BIC(model_poiss_hurdle) # 32403.15
-BIC(model_poiss_hurdle_zredukowany_2) # 32390.35 - lepiej
+BIC(model_poiss_hurdle_zredukowany_2) # 32390.35 
 
 summary(model_nb_hurdle) # intercept
 
@@ -357,10 +357,9 @@ tabela_llr[2, 2:4] <- llr_test(model_zinbr, model_zinbr_zredukowany)
 tabela_llr[3, 2:4] <- llr_test(model_poiss_hurdle, model_poiss_hurdle_zredukowany_2)
 tabela_llr[4, 2:4] <- llr_test(model_nb_hurdle, model_nb_hurdle_zredukowany)
 
-print(tabela_llr)
 
 colnames(tabela_llr) = c("Model", "Statystyka testowa","df","p-wartość")
-saveRDS(tabela_llr, file = "D:/Users/Eweli/OneDrive/Pulpit/Studia/Zaawansowane modele liniowe/Raport3/wyniki/tabela1.rds")
+saveRDS(tabela_llr, file = ".../tabela_llr")
 
 
 # ESTYMATORY BETA --------------------------------------------------------------
@@ -405,7 +404,7 @@ tabela_beta <- data.frame(
 )
 
 colnames(tabela_beta)<-c("Poisson","NB","ZIPR","ZINBR","Poisson z barierą","NB z barierą")
-saveRDS(tabela_beta, file = "D:/Users/Eweli/OneDrive/Pulpit/Studia/Zaawansowane modele liniowe/Raport3/wyniki/tabela_beta.rds")
+saveRDS(tabela_beta, file = ".../tabela_beta.rds")
 
 # ESTYMATOR GAMMA --------------------------------------------------------------
 
@@ -448,7 +447,7 @@ tabela_gamma <- data.frame(
 )
 
 colnames(tabela_gamma)<-c("","Poisson","NB","ZIPR","ZINBR","Poisson z barierą","NB z barierą")
-saveRDS(tabela_gamma, file = "D:/Users/Eweli/OneDrive/Pulpit/Studia/Zaawansowane modele liniowe/Raport3/wyniki/tabela_gamma.rds")
+saveRDS(tabela_gamma, file = "..../tabela_gamma.rds")
 
 
 
@@ -512,7 +511,7 @@ tabela_statystyki <- data.frame(
 
 
 colnames(tabela_statystyki)<-c("","Poisson","NB","ZIPR","ZINBR","Poisson z barierą","NB z barierą")
-saveRDS(tabela_statystyki, file = "D:/Users/Eweli/OneDrive/Pulpit/Studia/Zaawansowane modele liniowe/Raport3/wyniki/tabela_statystyki.rds")
+saveRDS(tabela_statystyki, file = ".../tabela_statystyki.rds")
 
 
 
